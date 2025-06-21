@@ -1,0 +1,4 @@
+include LICENSE
+include README.md
+recursive-include durc_is_crud/templates *
+recursive-include durc_is_crud/static *
