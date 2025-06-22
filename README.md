@@ -12,6 +12,9 @@ DURC (Database to CRUD) is a Python package that simplifies the process of gener
 
 ## Installation
 
+
+1. After installing and initially setting up your Django instance, use pip to install durc with: 
+2. 
 ```bash
 # Basic installation (includes testing capabilities)
 pip install durc-is-crud
@@ -20,9 +23,6 @@ pip install durc-is-crud
 pip install durc-is-crud[dev]
 ```
 
-For detailed installation instructions, see the [Installation Guide](docs/installation.md).
-
-## Quick Start
 
 1. Add `durc_is_crud` to your `INSTALLED_APPS` in your Django settings:
 
