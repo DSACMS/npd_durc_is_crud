@@ -13,7 +13,11 @@ DURC (Database to CRUD) is a Python package that simplifies the process of gener
 ## Installation
 
 ```bash
+# Basic installation (includes testing capabilities)
 pip install durc-is-crud
+
+# Installation with development dependencies (for contributors)
+pip install durc-is-crud[dev]
 ```
 
 For detailed installation instructions, see the [Installation Guide](docs/installation.md).
@@ -42,12 +46,26 @@ For detailed installation instructions, see the [Installation Guide](docs/instal
    python manage.py durc_compile
    ```
 
+4. Run tests for the DURC package:
+
+   ```bash
+   # Run all tests (both standalone and Django-dependent)
+   python manage.py durc_test
+
+   # Run only standalone tests that don't require Django
+   python manage.py durc_test --standalone-only
+
+   # Run only tests that require Django
+   python manage.py durc_test --django-only
+   ```
+
 For more detailed usage instructions, see the [Usage Guide](docs/usage.md).
 
 ## Documentation
 
 - [Installation Guide](docs/installation.md)
 - [Usage Guide](docs/usage.md)
+- [Testing Guide](tests/README.md)
 
 ## Requirements
 

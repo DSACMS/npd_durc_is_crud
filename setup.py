@@ -12,7 +12,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ftrotter/durc_is_crud",  # Replace with actual URL
-    packages=find_packages(),
+    packages=find_packages(include=['durc_is_crud', 'durc_is_crud.*']),
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
@@ -33,11 +33,11 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         "django>=3.0.0",
+        "pytest>=6.0.0",
+        "pytest-django>=4.0.0",
     ],
     extras_require={
         "dev": [
-            "pytest>=6.0.0",
-            "pytest-django>=4.0.0",
             "black",
             "isort",
             "flake8",
