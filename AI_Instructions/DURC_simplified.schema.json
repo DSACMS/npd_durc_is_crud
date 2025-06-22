@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DURC Simplified Schema",
+  "description": "Schema for DURC simplified database structure definition",
+  "type": "object",
+  "patternProperties": {
+    "^[a-zA-Z0-9_]+$": {
+      "description": "Database definition",
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9_]+$": {
+          "description": "Table definition",
+          "type": "object",
+          "required": [
+            "table_name",
+            "db",
+            "column_data",
+            "create_table_sql"
+          ],
+          "properties": {
+            "table_name": {
+              "description": "Name of the table",
+              "type": "string"
+            },
+            "db": {
+              "description": "Database name",
+              "type": "string"
+            },
+            "column_data": {
+              "description": "Array of column definitions",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "column_name",
+                  "data_type",
+                  "is_primary_key",
+                  "is_foreign_key",
+                  "is_linked_key",
+                  "is_nullable",
+                  "is_auto_increment"
+                ],
+                "properties": {
+                  "column_name": {
+                    "description": "Name of the column",
+                    "type": "string"
+                  },
+                  "data_type": {
+                    "description": "SQL data type of the column",
+                    "type": "string",
+                    "enum": [
+                      "int",
+                      "varchar",
+                      "text",
+                      "mediumtext",
+                      "longtext",
+                      "float",
+                      "decimal",
+                      "date",
+                      "datetime",
+                      "timestamp",
+                      "time",
+                      "blob",
+                      "tinyint",
+                      "char"
+                    ]
+                  },
+                  "is_primary_key": {
+                    "description": "Whether this column is a primary key",
+                    "type": "boolean"
+                  },
+                  "is_foreign_key": {
+                    "description": "Whether this column is a foreign key",
+                    "type": "boolean"
+                  },
+                  "is_linked_key": {
+                    "description": "Whether this column is a linked key",
+                    "type": "boolean"
+                  },
+                  "foreign_db": {
+                    "description": "For foreign/linked keys, the database of the referenced table",
+                    "type": ["string", "null"]
+                  },
+                  "foreign_table": {
+                    "description": "For foreign/linked keys, the name of the referenced table",
+                    "type": ["string", "null"]
+                  },
+                  "is_nullable": {
+                    "description": "Whether this column can contain NULL values",
+                    "type": "boolean"
+                  },
+                  "default_value": {
+                    "description": "Default value for the column",
+                    "type": ["string", "null"]
+                  },
+                  "is_auto_increment": {
+                    "description": "Whether this column auto-increments",
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "has_many": {
+              "description": "One-to-many relationships from this table",
+              "type": "object",
+              "patternProperties": {
+                "^[a-zA-Z0-9_]+$": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "from_table",
+                    "from_db",
+                    "from_column"
+                  ],
+                  "properties": {
+                    "prefix": {
+                      "description": "Optional prefix for the relationship",
+                      "type": ["string", "null"]
+                    },
+                    "type": {
+                      "description": "Type of the related entity",
+                      "type": "string"
+                    },
+                    "from_table": {
+                      "description": "Table name of the related entity",
+                      "type": "string"
+                    },
+                    "from_db": {
+                      "description": "Database name of the related entity",
+                      "type": "string"
+                    },
+                    "from_column": {
+                      "description": "Column name in the related table that references this table",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "belongs_to": {
+              "description": "Many-to-one relationships to other tables",
+              "type": "object",
+              "patternProperties": {
+                "^[a-zA-Z0-9_]+$": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "to_table",
+                    "to_db",
+                    "local_key"
+                  ],
+                  "properties": {
+                    "prefix": {
+                      "description": "Optional prefix for the relationship",
+                      "type": ["string", "null"]
+                    },
+                    "type": {
+                      "description": "Type of the related entity",
+                      "type": "string"
+                    },
+                    "to_table": {
+                      "description": "Table name of the related entity",
+                      "type": "string"
+                    },
+                    "to_db": {
+                      "description": "Database name of the related entity",
+                      "type": "string"
+                    },
+                    "local_key": {
+                      "description": "Column name in this table that references the related table",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "create_table_sql": {
+              "description": "SQL statement to create this table",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

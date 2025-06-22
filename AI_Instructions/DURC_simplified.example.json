@@ -1,0 +1,736 @@
+{
+  "blog_db": {
+    "user": {
+      "table_name": "user",
+      "db": "blog_db",
+      "column_data": [
+        {
+          "column_name": "id",
+          "data_type": "int",
+          "is_primary_key": true,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": true
+        },
+        {
+          "column_name": "username",
+          "data_type": "varchar",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "email",
+          "data_type": "varchar",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "bio",
+          "data_type": "text",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "profile_image",
+          "data_type": "blob",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "is_admin",
+          "data_type": "tinyint",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "0",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "datetime",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "current_timestamp()",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "datetime",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "current_timestamp()",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "last_login",
+          "data_type": "timestamp",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "mentor_id",
+          "data_type": "int",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": true,
+          "foreign_db": "blog_db",
+          "foreign_table": "user",
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        }
+      ],
+      "has_many": {
+        "post": {
+          "prefix": null,
+          "type": "post",
+          "from_table": "post",
+          "from_db": "blog_db",
+          "from_column": "author_id"
+        },
+        "comment": {
+          "prefix": null,
+          "type": "comment",
+          "from_table": "comment",
+          "from_db": "blog_db",
+          "from_column": "user_id"
+        },
+        "mentee": {
+          "prefix": "mentee",
+          "type": "user",
+          "from_table": "user",
+          "from_db": "blog_db",
+          "from_column": "mentor_id"
+        }
+      },
+      "belongs_to": {
+        "mentor": {
+          "prefix": "mentor",
+          "type": "user",
+          "to_table": "user",
+          "to_db": "blog_db",
+          "local_key": "mentor_id"
+        }
+      },
+      "create_table_sql": "CREATE TABLE `blog_db`.`user` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `username` varchar(50) NOT NULL,\n  `email` varchar(100) NOT NULL,\n  `bio` text DEFAULT NULL,\n  `profile_image` blob DEFAULT NULL,\n  `is_admin` tinyint(1) NOT NULL DEFAULT 0,\n  `created_at` datetime NOT NULL DEFAULT current_timestamp(),\n  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),\n  `last_login` timestamp NULL DEFAULT NULL,\n  `mentor_id` int(11) DEFAULT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `username` (`username`),\n  UNIQUE KEY `email` (`email`),\n  KEY `mentor_id` (`mentor_id`),\n  CONSTRAINT `fk_user_mentor` FOREIGN KEY (`mentor_id`) REFERENCES `user` (`id`) ON DELETE SET NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    },
+    "post": {
+      "table_name": "post",
+      "db": "blog_db",
+      "column_data": [
+        {
+          "column_name": "id",
+          "data_type": "int",
+          "is_primary_key": true,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": true
+        },
+        {
+          "column_name": "title",
+          "data_type": "varchar",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "content",
+          "data_type": "longtext",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "author_id",
+          "data_type": "int",
+          "is_primary_key": false,
+          "is_foreign_key": true,
+          "is_linked_key": true,
+          "foreign_db": "blog_db",
+          "foreign_table": "user",
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "view_count",
+          "data_type": "int",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "0",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "is_published",
+          "data_type": "tinyint",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "0",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "published_at",
+          "data_type": "date",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "datetime",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "current_timestamp()",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "datetime",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "current_timestamp()",
+          "is_auto_increment": false
+        }
+      ],
+      "has_many": {
+        "comment": {
+          "prefix": null,
+          "type": "comment",
+          "from_table": "comment",
+          "from_db": "blog_db",
+          "from_column": "post_id"
+        },
+        "post_tag": {
+          "prefix": null,
+          "type": "post_tag",
+          "from_table": "post_tag",
+          "from_db": "blog_db",
+          "from_column": "post_id"
+        }
+      },
+      "belongs_to": {
+        "author": {
+          "prefix": "author",
+          "type": "user",
+          "to_table": "user",
+          "to_db": "blog_db",
+          "local_key": "author_id"
+        }
+      },
+      "create_table_sql": "CREATE TABLE `blog_db`.`post` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `title` varchar(255) NOT NULL,\n  `content` longtext NOT NULL,\n  `author_id` int(11) NOT NULL,\n  `view_count` int(11) NOT NULL DEFAULT 0,\n  `is_published` tinyint(1) NOT NULL DEFAULT 0,\n  `published_at` date DEFAULT NULL,\n  `created_at` datetime NOT NULL DEFAULT current_timestamp(),\n  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),\n  PRIMARY KEY (`id`),\n  KEY `author_id` (`author_id`),\n  CONSTRAINT `fk_post_author` FOREIGN KEY (`author_id`) REFERENCES `user` (`id`) ON DELETE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    },
+    "comment": {
+      "table_name": "comment",
+      "db": "blog_db",
+      "column_data": [
+        {
+          "column_name": "id",
+          "data_type": "int",
+          "is_primary_key": true,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": true
+        },
+        {
+          "column_name": "content",
+          "data_type": "text",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "post_id",
+          "data_type": "int",
+          "is_primary_key": false,
+          "is_foreign_key": true,
+          "is_linked_key": true,
+          "foreign_db": "blog_db",
+          "foreign_table": "post",
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "user_id",
+          "data_type": "int",
+          "is_primary_key": false,
+          "is_foreign_key": true,
+          "is_linked_key": true,
+          "foreign_db": "blog_db",
+          "foreign_table": "user",
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "parent_id",
+          "data_type": "int",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": true,
+          "foreign_db": "blog_db",
+          "foreign_table": "comment",
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "datetime",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "current_timestamp()",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "datetime",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "current_timestamp()",
+          "is_auto_increment": false
+        }
+      ],
+      "has_many": {
+        "reply": {
+          "prefix": "reply",
+          "type": "comment",
+          "from_table": "comment",
+          "from_db": "blog_db",
+          "from_column": "parent_id"
+        }
+      },
+      "belongs_to": {
+        "post": {
+          "prefix": null,
+          "type": "post",
+          "to_table": "post",
+          "to_db": "blog_db",
+          "local_key": "post_id"
+        },
+        "user": {
+          "prefix": null,
+          "type": "user",
+          "to_table": "user",
+          "to_db": "blog_db",
+          "local_key": "user_id"
+        },
+        "parent": {
+          "prefix": "parent",
+          "type": "comment",
+          "to_table": "comment",
+          "to_db": "blog_db",
+          "local_key": "parent_id"
+        }
+      },
+      "create_table_sql": "CREATE TABLE `blog_db`.`comment` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `content` text NOT NULL,\n  `post_id` int(11) NOT NULL,\n  `user_id` int(11) NOT NULL,\n  `parent_id` int(11) DEFAULT NULL,\n  `created_at` datetime NOT NULL DEFAULT current_timestamp(),\n  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),\n  PRIMARY KEY (`id`),\n  KEY `post_id` (`post_id`),\n  KEY `user_id` (`user_id`),\n  KEY `parent_id` (`parent_id`),\n  CONSTRAINT `fk_comment_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_comment_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_comment_parent` FOREIGN KEY (`parent_id`) REFERENCES `comment` (`id`) ON DELETE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    },
+    "tag": {
+      "table_name": "tag",
+      "db": "blog_db",
+      "column_data": [
+        {
+          "column_name": "id",
+          "data_type": "int",
+          "is_primary_key": true,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": true
+        },
+        {
+          "column_name": "name",
+          "data_type": "varchar",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "datetime",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "current_timestamp()",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "datetime",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "current_timestamp()",
+          "is_auto_increment": false
+        }
+      ],
+      "has_many": {
+        "post_tag": {
+          "prefix": null,
+          "type": "post_tag",
+          "from_table": "post_tag",
+          "from_db": "blog_db",
+          "from_column": "tag_id"
+        }
+      },
+      "create_table_sql": "CREATE TABLE `blog_db`.`tag` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `name` varchar(50) NOT NULL,\n  `created_at` datetime NOT NULL DEFAULT current_timestamp(),\n  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `name` (`name`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    },
+    "post_tag": {
+      "table_name": "post_tag",
+      "db": "blog_db",
+      "column_data": [
+        {
+          "column_name": "post_id",
+          "data_type": "int",
+          "is_primary_key": true,
+          "is_foreign_key": true,
+          "is_linked_key": true,
+          "foreign_db": "blog_db",
+          "foreign_table": "post",
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "tag_id",
+          "data_type": "int",
+          "is_primary_key": true,
+          "is_foreign_key": true,
+          "is_linked_key": true,
+          "foreign_db": "blog_db",
+          "foreign_table": "tag",
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "datetime",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": "current_timestamp()",
+          "is_auto_increment": false
+        }
+      ],
+      "belongs_to": {
+        "post": {
+          "prefix": null,
+          "type": "post",
+          "to_table": "post",
+          "to_db": "blog_db",
+          "local_key": "post_id"
+        },
+        "tag": {
+          "prefix": null,
+          "type": "tag",
+          "to_table": "tag",
+          "to_db": "blog_db",
+          "local_key": "tag_id"
+        }
+      },
+      "create_table_sql": "CREATE TABLE `blog_db`.`post_tag` (\n  `post_id` int(11) NOT NULL,\n  `tag_id` int(11) NOT NULL,\n  `created_at` datetime NOT NULL DEFAULT current_timestamp(),\n  PRIMARY KEY (`post_id`,`tag_id`),\n  KEY `tag_id` (`tag_id`),\n  CONSTRAINT `fk_post_tag_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_post_tag_tag` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`) ON DELETE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    },
+    "data_types": {
+      "table_name": "data_types",
+      "db": "blog_db",
+      "column_data": [
+        {
+          "column_name": "id",
+          "data_type": "int",
+          "is_primary_key": true,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": false,
+          "default_value": null,
+          "is_auto_increment": true
+        },
+        {
+          "column_name": "int_value",
+          "data_type": "int",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "varchar_value",
+          "data_type": "varchar",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "text_value",
+          "data_type": "text",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "mediumtext_value",
+          "data_type": "mediumtext",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "longtext_value",
+          "data_type": "longtext",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "float_value",
+          "data_type": "float",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "decimal_value",
+          "data_type": "decimal",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "date_value",
+          "data_type": "date",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "datetime_value",
+          "data_type": "datetime",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "timestamp_value",
+          "data_type": "timestamp",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "time_value",
+          "data_type": "time",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "blob_value",
+          "data_type": "blob",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "tinyint_value",
+          "data_type": "tinyint",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        },
+        {
+          "column_name": "char_value",
+          "data_type": "char",
+          "is_primary_key": false,
+          "is_foreign_key": false,
+          "is_linked_key": false,
+          "foreign_db": null,
+          "foreign_table": null,
+          "is_nullable": true,
+          "default_value": "NULL",
+          "is_auto_increment": false
+        }
+      ],
+      "create_table_sql": "CREATE TABLE `blog_db`.`data_types` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `int_value` int(11) DEFAULT NULL,\n  `varchar_value` varchar(255) DEFAULT NULL,\n  `text_value` text DEFAULT NULL,\n  `mediumtext_value` mediumtext DEFAULT NULL,\n  `longtext_value` longtext DEFAULT NULL,\n  `float_value` float DEFAULT NULL,\n  `decimal_value` decimal(10,2) DEFAULT NULL,\n  `date_value` date DEFAULT NULL,\n  `datetime_value` datetime DEFAULT NULL,\n  `timestamp_value` timestamp NULL DEFAULT NULL,\n  `time_value` time DEFAULT NULL,\n  `blob_value` blob DEFAULT NULL,\n  `tinyint_value` tinyint(1) DEFAULT NULL,\n  `char_value` char(1) DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    }
+  }
+}
