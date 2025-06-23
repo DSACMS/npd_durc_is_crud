@@ -49,3 +49,24 @@ exclude_lines = [
     "pass",
     "raise ImportError",
 ]
+
+
+[project]
+name = "durc-is-crud"
+version = "0.0.1"
+authors = [
+  { name="Fred Trotter", email="fred.trotter@gmail.com" },
+]
+description = "DURC creates Django CRUD files from the database."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "CC0-1.0"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/ftrotter/durc_is_crud"
+Issues = "https://github.com/ftrotter/durc_is_crud/issues"
