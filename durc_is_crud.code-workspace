@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../not_pointless"
 		}
 	],
 	"settings": {
