@@ -1,3 +1,5 @@
 Django>=3.0.0
 pytest>=6.0.0
 pytest-django>=4.0.0
+sqlglot>=20.0.0
+graphviz>=0.20.0
