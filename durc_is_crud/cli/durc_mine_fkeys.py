@@ -74,52 +74,94 @@ class ForeignKeyGenerator:
         processed_constraints: Set[str] = set()
         
         # Process each database in the model
-        for db_name, tables in relational_model.items():
-            if not isinstance(tables, dict):
+        for db_name, schemas_or_tables in relational_model.items():
+            if not isinstance(schemas_or_tables, dict):
                 continue
                 
             print(f"Processing database: {db_name}")
             
-            # Process each table in the database
-            for table_name, table_info in tables.items():
-                if not isinstance(table_info, dict):
+            # Check if this is a schema-based structure or direct table structure
+            for schema_or_table_name, schema_or_table_info in schemas_or_tables.items():
+                if not isinstance(schema_or_table_info, dict):
                     continue
                 
-                print(f"  Processing table: {table_name}")
-                
-                # Process belongs_to relationships (foreign keys in this table)
-                belongs_to = table_info.get('belongs_to', {})
-                for relationship_name, relationship_info in belongs_to.items():
-                    try:
-                        fk_statement = ForeignKeyGenerator._create_foreign_key_statement(
-                            db_name, table_name, relationship_info, processed_constraints
-                        )
-                        if fk_statement:
-                            foreign_key_statements.append(fk_statement)
-                            print(f"    Generated FK: {relationship_name}")
-                    except Exception as e:
-                        print(f"    Warning: Skipping relationship {relationship_name}: {e}")
-                
-                # Also process existing foreign keys from column metadata
-                column_data = table_info.get('column_data', [])
-                for column in column_data:
-                    if column.get('is_foreign_key') and column.get('foreign_table'):
-                        try:
-                            fk_statement = ForeignKeyGenerator._create_foreign_key_from_column(
-                                db_name, table_name, column, processed_constraints
-                            )
-                            if fk_statement:
-                                foreign_key_statements.append(fk_statement)
-                                print(f"    Generated FK from column: {column['column_name']}")
-                        except Exception as e:
-                            print(f"    Warning: Skipping column FK {column.get('column_name')}: {e}")
+                # Check if this looks like a schema (contains tables) or a direct table
+                if 'table_name' in schema_or_table_info:
+                    # This is a direct table
+                    table_name = schema_or_table_name
+                    table_info = schema_or_table_info
+                    print(f"  Processing table: {table_name}")
+                    ForeignKeyGenerator._process_table(db_name, table_name, table_info, foreign_key_statements, processed_constraints, None)
+                else:
+                    # This is a schema containing tables
+                    schema_name = schema_or_table_name
+                    print(f"  Processing schema: {schema_name}")
+                    
+                    for table_name, table_info in schema_or_table_info.items():
+                        if not isinstance(table_info, dict):
+                            continue
+                        
+                        print(f"    Processing table: {table_name}")
+                        ForeignKeyGenerator._process_table(db_name, table_name, table_info, foreign_key_statements, processed_constraints, schema_name)
         
         return foreign_key_statements
     
     @staticmethod
+    def _process_table(db_name: str, table_name: str, table_info: Dict[str, Any], 
+                      foreign_key_statements: List[str], processed_constraints: Set[str],
+                      schema_name: Optional[str] = None) -> None:
+        """
+        Process a single table for foreign key relationships.
+        
+        Args:
+            db_name (str): Database name
+            table_name (str): Table name
+            table_info (dict): Table information from JSON
+            foreign_key_statements (list): List to append generated statements to
+            processed_constraints (set): Set of processed constraints to avoid duplicates
+            schema_name (str): Schema name (optional)
+        """
+        # Process belongs_to relationships (foreign keys in this table)
+        belongs_to = table_info.get('belongs_to', {})
+        print(f"    Found {len(belongs_to)} belongs_to relationships")
+        for relationship_name, relationship_info in belongs_to.items():
+            print(f"    Processing relationship: {relationship_name} -> {relationship_info}")
+            try:
+                fk_statement = ForeignKeyGenerator._create_foreign_key_statement(
+                    db_name, table_name, relationship_info, processed_constraints, schema_name
+                )
+                if fk_statement:
+                    foreign_key_statements.append(fk_statement)
+                    print(f"    Generated FK: {relationship_name}")
+            except Exception as e:
+                print(f"    Warning: Skipping relationship {relationship_name}: {e}")
+        
+        # Also process existing foreign keys from column metadata
+        column_data = table_info.get('column_data', [])
+        print(f"    Found {len(column_data)} columns")
+        for column in column_data:
+            # Check for both is_foreign_key and is_linked_key
+            is_fk = column.get('is_foreign_key', False)
+            is_linked = column.get('is_linked_key', False)
+            has_foreign_table = column.get('foreign_table') is not None
+            print(f"    Column {column.get('column_name')}: is_foreign_key={is_fk}, is_linked_key={is_linked}, foreign_table={column.get('foreign_table')}")
+            
+            if (is_fk or is_linked) and has_foreign_table:
+                try:
+                    fk_statement = ForeignKeyGenerator._create_foreign_key_from_column(
+                        db_name, table_name, column, processed_constraints, schema_name
+                    )
+                    if fk_statement:
+                        foreign_key_statements.append(fk_statement)
+                        print(f"    Generated FK from column: {column['column_name']}")
+                except Exception as e:
+                    print(f"    Warning: Skipping column FK {column.get('column_name')}: {e}")
+    
+    @staticmethod
     def _create_foreign_key_statement(db_name: str, table_name: str, 
                                     relationship_info: Dict[str, Any], 
-                                    processed_constraints: Set[str]) -> Optional[str]:
+                                    processed_constraints: Set[str],
+                                    schema_name: Optional[str] = None) -> Optional[str]:
         """
         Create a foreign key statement from relationship information.
         
@@ -160,12 +202,18 @@ class ForeignKeyGenerator:
             return None
         processed_constraints.add(constraint_id)
         
-        # Build source table reference
-        source_table_ref = f"{db_name}.{table_name}"
+        # Build source table reference - use schema_name if available, otherwise db_name
+        if schema_name:
+            source_table_ref = f"{schema_name}.{table_name}"
+        else:
+            source_table_ref = f"{db_name}.{table_name}"
         
-        # Build target table reference
-        if to_schema and to_schema != db_name:
+        # Build target table reference - use to_schema if available, otherwise use schema_name or db_name
+        if to_schema:
             target_table_ref = f"{to_schema}.{to_table}"
+        elif schema_name:
+            # If no to_schema specified but we have a schema_name, assume same schema
+            target_table_ref = f"{schema_name}.{to_table}"
         else:
             target_table_ref = f"{to_db}.{to_table}"
         
@@ -182,7 +230,8 @@ class ForeignKeyGenerator:
     @staticmethod
     def _create_foreign_key_from_column(db_name: str, table_name: str, 
                                       column: Dict[str, Any], 
-                                      processed_constraints: Set[str]) -> Optional[str]:
+                                      processed_constraints: Set[str],
+                                      schema_name: Optional[str] = None) -> Optional[str]:
         """
         Create a foreign key statement from column metadata.
         
@@ -210,7 +259,7 @@ class ForeignKeyGenerator:
         }
         
         return ForeignKeyGenerator._create_foreign_key_statement(
-            db_name, table_name, relationship_info, processed_constraints
+            db_name, table_name, relationship_info, processed_constraints, schema_name
         )
     
     @staticmethod

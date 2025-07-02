@@ -41,6 +41,9 @@ class DURC_RelationalModelExtractor:
                 stdout_writer(style.ERROR(f"Error connecting to database '{db_name}': {e}"))
                 continue
             
+            # Detect database type
+            is_postgresql = 'postgresql' in conn.settings_dict['ENGINE'].lower() or 'psycopg' in conn.settings_dict['ENGINE'].lower()
+            
             # Initialize the database in the relational model if not already present
             if db_name not in relational_model:
                 relational_model[db_name] = {}
@@ -92,11 +95,18 @@ class DURC_RelationalModelExtractor:
                             continue
                         
                         table_info = DURC_RelationalModelExtractor._process_table(
-                            conn, cursor, db_name, schema_name, current_table, all_tables, stdout_writer, style
+                            conn, cursor, db_name, schema_name, current_table, all_tables, stdout_writer, style, is_postgresql
                         )
                         
-                        # Add the table to the relational model
-                        relational_model[db_name][current_table] = table_info
+                        # Add the table to the relational model with proper structure
+                        if is_postgresql and schema_name:
+                            # For PostgreSQL, create schema layer: db -> schema -> table
+                            if schema_name not in relational_model[db_name]:
+                                relational_model[db_name][schema_name] = {}
+                            relational_model[db_name][schema_name][current_table] = table_info
+                        else:
+                            # For MySQL or when no schema specified: db -> table
+                            relational_model[db_name][current_table] = table_info
                         
                         stdout_writer(f"Processed table: {db_name}.{schema_name + '.' if schema_name else ''}{current_table}")
                     
@@ -108,7 +118,7 @@ class DURC_RelationalModelExtractor:
         return relational_model
     
     @staticmethod
-    def _process_table(conn, cursor, db_name, schema_name, table, all_tables, stdout_writer, style):
+    def _process_table(conn, cursor, db_name, schema_name, table, all_tables, stdout_writer, style, is_postgresql):
         """
         Process a single table and extract its information.
         
@@ -121,6 +131,7 @@ class DURC_RelationalModelExtractor:
             all_tables (list): List of all tables in the schema
             stdout_writer: Django stdout writer for output messages
             style: Django style for formatting output messages
+            is_postgresql (bool): Whether the database is PostgreSQL
             
         Returns:
             dict: Table information including columns and relationships
@@ -206,6 +217,10 @@ class DURC_RelationalModelExtractor:
             'column_data': column_data,
             'create_table_sql': create_table_sql
         }
+        
+        # Add schema information for PostgreSQL
+        if is_postgresql and schema_name:
+            table_info['schema'] = schema_name
         
         # Add relationships if they exist
         if has_many:
