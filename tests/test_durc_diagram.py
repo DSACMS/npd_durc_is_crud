@@ -137,8 +137,11 @@ class TestMermaidGenerator(unittest.TestCase):
         self.assertIn('flowchart TD', diagram)
         self.assertIn('user[', diagram)
         self.assertIn('<b>user</b>', diagram)
-        self.assertIn('id: SERIAL', diagram)
-        self.assertIn('username: varchar(50)', diagram)
+        self.assertIn('font-size: 16px', diagram)  # Table name formatting
+        self.assertIn('font-size: 12px', diagram)  # Column formatting
+        self.assertIn('text-align: left;">id', diagram)  # Left-aligned column name
+        self.assertIn('text-align: right;">SERIAL', diagram)  # Right-aligned data type
+        self.assertIn('text-align: right;">varchar(50)', diagram)
     
     def test_generate_diagram_with_sections(self):
         """Test generating a diagram with sections."""
@@ -164,10 +167,11 @@ class TestMermaidGenerator(unittest.TestCase):
         
         diagram = MermaidGenerator.generate_diagram(tables, sections)
         
-        self.assertIn('subgraph section_0["User Management"]', diagram)
-        self.assertIn('subgraph section_1["Content Management"]', diagram)
+        # Check for formatted section labels with HTML styling
+        self.assertIn('font-size: 20px; font-weight: bold;">User Management', diagram)
+        self.assertIn('font-size: 20px; font-weight: bold;">Content Management', diagram)
         self.assertIn('post --> user', diagram)
-        self.assertIn('user_id: integer (FK)', diagram)
+        self.assertIn('text-align: right;">integer (FK)', diagram)  # Formatted FK column
 
 
 class TestIntegration(unittest.TestCase):

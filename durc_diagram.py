@@ -221,12 +221,13 @@ class SQLParser:
             if not part:
                 continue
             
-            # Skip constraints like PRIMARY KEY, FOREIGN KEY, etc.
+            # Skip constraints like PRIMARY KEY, FOREIGN KEY, UNIQUE, etc.
             if (part.upper().startswith('PRIMARY KEY') or 
                 part.upper().startswith('FOREIGN KEY') or
                 part.upper().startswith('CONSTRAINT') or
                 part.upper().startswith('INDEX') or
-                part.upper().startswith('KEY')):
+                part.upper().startswith('KEY') or
+                part.upper().startswith('UNIQUE')):
                 continue
             
             # Parse column definition
@@ -329,9 +330,11 @@ class MermaidGenerator:
             section_color = MermaidGenerator.SECTION_COLORS[color_index % len(MermaidGenerator.SECTION_COLORS)]
             table_color = MermaidGenerator.PASTEL_COLORS[color_index % len(MermaidGenerator.PASTEL_COLORS)]
             
-            # Create subgraph for section
+            # Create subgraph for section with larger font size for section name
             section_id = f"section_{color_index}"
-            lines.append(f'    subgraph {section_id}["{section_name}"]')
+            # Section labels should be two sizes larger than table names (which are 16px), so 20px
+            section_label = f'<span style="font-size: 20px; font-weight: bold;">{section_name}</span>'
+            lines.append(f'    subgraph {section_id}["{section_label}"]')
             
             # Generate tables in this section
             for table_name, table_info in section_tables:
@@ -372,22 +375,26 @@ class MermaidGenerator:
     
     @staticmethod
     def _generate_table_content(table_info: Dict) -> str:
-        """Generate table content for display in flowchart node."""
+        """Generate table content for display in flowchart node with proper formatting."""
         table_name = table_info['table_name']
         columns = table_info['columns']
         
-        # Create table header
-        content_lines = [f"<b>{table_name}</b>", "---"]
+        # Create table header with larger font size (two sizes larger than column text)
+        content_lines = [f'<span style="font-size: 16px;"><b>{table_name}</b></span>', "---"]
         
-        # Add columns
+        # Add columns with left-aligned names and right-aligned types
         for column in columns:
             data_type = column['data_type']
             column_name = column['column_name']
             
+            # Create a table-like structure with left and right alignment
             if column['is_foreign_key']:
-                content_lines.append(f"{column_name}: {data_type} (FK)")
+                # Use a span with flex-like behavior for alignment
+                column_line = f'<div style="display: flex; justify-content: space-between; font-size: 12px;"><span style="text-align: left;">{column_name}</span><span style="text-align: right;">{data_type} (FK)</span></div>'
             else:
-                content_lines.append(f"{column_name}: {data_type}")
+                column_line = f'<div style="display: flex; justify-content: space-between; font-size: 12px;"><span style="text-align: left;">{column_name}</span><span style="text-align: right;">{data_type}</span></div>'
+            
+            content_lines.append(column_line)
         
         # Join with HTML line breaks for proper display
         return "<br/>".join(content_lines)

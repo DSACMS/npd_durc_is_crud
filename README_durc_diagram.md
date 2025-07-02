@@ -78,6 +78,14 @@ The generated markdown file contains:
 - **Relationships**: Arrows showing foreign key connections
 - **Typography**: Bold table names, clear column listings
 
+### Formatting Specifics
+
+- **Font Sizes**: Table names are two sizes larger than column text (16px vs 12px)
+- **Section Labels**: Two sizes larger than table names (20px) with bold styling
+- **Column Alignment**: Column names are left-aligned, data types are right-aligned
+- **HTML Styling**: Uses HTML spans and divs for precise formatting control
+- **Professional Layout**: Consistent spacing and typography throughout
+
 ## Requirements
 
 - Python 3.6+

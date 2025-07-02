@@ -30,3 +30,9 @@ Then implement a CLI python command that:
 The argument to the program should be:
 --sql_files = a list of one or many files that end in .sql to parse.
 --output_md_file = the markdown file to create or overwrite with the diagram.
+
+Formating Specifics
+------------
+
+* the table names should be two font sizes larger than the text for the column definitions. The section labels should be two sizes larger than that.
+* The column labels should be left aligned in the table boxes, and the column type should be right aligned.
