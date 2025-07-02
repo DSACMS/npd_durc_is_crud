@@ -1,8 +1,8 @@
 import os
-import json
 from datetime import datetime
 from django.core.management.base import BaseCommand, CommandError
 from .durc_utils.include_pattern_parser import DURC_IncludePatternParser
+from ...shared.durc_data_loader import DurcDataLoader
 
 class Command(BaseCommand):
     help = 'Generate PostgreSQL foreign key statements from DURC relational model'
@@ -55,14 +55,12 @@ class Command(BaseCommand):
             if output_dir:
                 os.makedirs(output_dir, exist_ok=True)
         
-        # Load the relational model
+        # Load the relational model using shared data loader
+        data_loader = DurcDataLoader()
         try:
-            with open(input_json_file, 'r') as f:
-                relational_model = json.load(f)
-        except json.JSONDecodeError:
-            raise CommandError(f"Failed to parse {input_json_file} as JSON")
+            relational_model = data_loader.load_relational_model(input_json_file)
         except Exception as e:
-            raise CommandError(f"Error reading {input_json_file}: {e}")
+            raise CommandError(f"Error loading relational model: {e}")
         
         # Generate foreign key statements
         foreign_key_statements = self._generate_foreign_key_statements(

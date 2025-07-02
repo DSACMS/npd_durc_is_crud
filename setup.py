@@ -36,6 +36,11 @@ setup(
         "pytest>=6.0.0",
         "pytest-django>=4.0.0",
     ],
+    entry_points={
+        'console_scripts': [
+            'durc-mine-fkeys=durc_is_crud.cli.durc_mine_fkeys:main',
+        ],
+    },
     extras_require={
         "dev": [
             "black",

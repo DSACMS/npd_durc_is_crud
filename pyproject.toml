@@ -70,3 +70,6 @@ license-files = ["LICEN[CS]E*"]
 [project.urls]
 Homepage = "https://github.com/ftrotter/durc_is_crud"
 Issues = "https://github.com/ftrotter/durc_is_crud/issues"
+
+[project.scripts]
+durc-mine-fkeys = "durc_is_crud.cli.durc_mine_fkeys:main"
