@@ -96,31 +96,18 @@ The generated markdown file contains:
 
 ## Example Output
 
-The script generates Mermaid diagrams with individual blocks for each column:
+The script generates Mermaid diagrams like this:
 
 ```mermaid
 flowchart TD
     subgraph section_0["User Management"]
-        user_header["<b>user</b>"]
-        user_col_0_name["id"]
-        user_col_0_type["SERIAL"]
-        user_col_1_name["username"]
-        user_col_1_type["varchar(50)"]
-        user_header --- user_col_0_name
-        user_col_0_name --- user_col_0_type
-        user_col_0_name --- user_col_1_name
-        user_col_0_type --- user_col_1_type
-        user_col_1_name --- user_col_1_type
+        user["<b>user</b><br/>---<br/>id: SERIAL<br/>username: varchar(50)<br/>email: varchar(100)"]
+        user_profile["<b>user_profile</b><br/>---<br/>id: SERIAL<br/>user_id: integer (FK)<br/>first_name: varchar(50)"]
     end
     style section_0 fill:#FFB3B3,stroke:#333,stroke-width:2px,color:#000
-    style user_header fill:#CCCCCC,stroke:#333,stroke-width:2px,color:#000
-    style user_col_0_name fill:#FFE5E5,stroke:#333,stroke-width:1px,color:#000
-    style user_col_0_type fill:#FFD0D0,stroke:#333,stroke-width:1px,color:#000
+    style user fill:#FFE5E5,stroke:#333,stroke-width:1px,color:#000
+    style user_profile fill:#FFE5E5,stroke:#333,stroke-width:1px,color:#000
+    user_profile --> user
 ```
 
-This creates a table-like structure where:
-- Each table has a header block
-- Each column name gets its own block
-- Each data type gets its own block
-- Blocks are connected to form table structures
-- Foreign key columns connect directly to referenced table headers
+This creates a visually appealing database schema diagram with proper relationships and groupings.
