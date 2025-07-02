@@ -186,21 +186,31 @@ class ForeignKeyGenerator:
         # Determine target column (assume 'id' if not specified)
         target_column = 'id'  # Most foreign keys reference the primary key 'id'
         
+        # Create unique identifier for this foreign key relationship to avoid duplicates
+        # Use source table, column, and target table to identify unique relationships
+        if schema_name:
+            source_table_ref = f"{schema_name}.{table_name}"
+        else:
+            source_table_ref = f"{db_name}.{table_name}"
+        
+        # Build target table reference for uniqueness check
+        if to_schema:
+            target_table_ref = f"{to_schema}.{to_table}"
+        elif schema_name:
+            target_table_ref = f"{schema_name}.{to_table}"
+        else:
+            target_table_ref = f"{to_db}.{to_table}"
+        
+        # Create unique relationship identifier
+        relationship_id = f"{source_table_ref}.{local_key} -> {target_table_ref}.{target_column}"
+        
+        # Check if this exact relationship already exists
+        if relationship_id in processed_constraints:
+            return None
+        processed_constraints.add(relationship_id)
+        
         # Create constraint name using standard convention
         constraint_name = f"fk_{table_name}_{local_key}"
-        
-        # Handle duplicate constraint names by adding numbers
-        original_constraint_name = constraint_name
-        counter = 1
-        while f"{db_name}.{table_name}.{constraint_name}" in processed_constraints:
-            constraint_name = f"{original_constraint_name}_{counter:02d}"
-            counter += 1
-        
-        # Create unique identifier for this constraint to avoid duplicates
-        constraint_id = f"{db_name}.{table_name}.{constraint_name}"
-        if constraint_id in processed_constraints:
-            return None
-        processed_constraints.add(constraint_id)
         
         # Build source table reference - use schema_name if available, otherwise db_name
         if schema_name:
