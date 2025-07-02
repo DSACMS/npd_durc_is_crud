@@ -1,10 +1,10 @@
 -- Merged CREATE TABLE statements
--- Generated on: 2025-07-01 23:47:53
+-- Generated on: 2025-07-02 02:02:27
 -- Total CREATE TABLE statements: 21
 --
 -- Source files:
---   AI_Instructions/durc_postgres_test_files/DURC_aaa.postgres.sql
---   AI_Instructions/durc_postgres_test_files/DURC_bbb.postgres.sql
+--   ./DURC_aaa.postgres.sql
+--   ./DURC_bbb.postgres.sql
 
 
 CREATE TABLE "Should be Ignored" (

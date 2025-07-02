@@ -22,6 +22,7 @@ class SQLMerger:
     def find_sql_files(directory="."):
         """
         Recursively find all .sql files, excluding any existing _merged_.sql files.
+        Returns files sorted alphabetically by filename (case-insensitive).
         """
         sql_files = []
         
@@ -34,7 +35,8 @@ class SQLMerger:
             if not os.path.basename(file_path) == SQLMerger.OUTPUT_FILENAME:
                 sql_files.append(file_path)
         
-        return sorted(sql_files)
+        # Sort alphabetically by filename (case-insensitive)
+        return sorted(sql_files, key=lambda x: os.path.basename(x).lower())
     
     @staticmethod
     def extract_create_table_statements(file_path):
