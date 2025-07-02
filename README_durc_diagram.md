@@ -83,6 +83,9 @@ The generated markdown file contains:
 - **Font Sizes**: Table names are two sizes larger than column text (16px vs 12px)
 - **Section Labels**: Two sizes larger than table names (20px) with bold styling
 - **Column Alignment**: Column names are left-aligned, data types are right-aligned
+- **Automatic Width Adjustment**: Tables automatically adjust width to accommodate long column names
+- **Consistent Spacing**: Minimum 3 spaces between column names and data types
+- **Monospace Font**: Uses monospace font family for consistent column alignment
 - **HTML Styling**: Uses HTML spans and divs for precise formatting control
 - **Professional Layout**: Consistent spacing and typography throughout
 

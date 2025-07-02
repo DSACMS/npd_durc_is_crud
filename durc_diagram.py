@@ -382,18 +382,30 @@ class MermaidGenerator:
         # Create table header with larger font size (two sizes larger than column text)
         content_lines = [f'<span style="font-size: 16px;"><b>{table_name}</b></span>', "---"]
         
-        # Add columns with left-aligned names and right-aligned types
+        # Calculate the maximum column name length to ensure proper spacing
+        max_column_length = 0
+        formatted_columns = []
+        
         for column in columns:
             data_type = column['data_type']
             column_name = column['column_name']
             
-            # Create a table-like structure with left and right alignment
             if column['is_foreign_key']:
-                # Use a span with flex-like behavior for alignment
-                column_line = f'<div style="display: flex; justify-content: space-between; font-size: 12px;"><span style="text-align: left;">{column_name}</span><span style="text-align: right;">{data_type} (FK)</span></div>'
+                type_text = f"{data_type} (FK)"
             else:
-                column_line = f'<div style="display: flex; justify-content: space-between; font-size: 12px;"><span style="text-align: left;">{column_name}</span><span style="text-align: right;">{data_type}</span></div>'
+                type_text = data_type
             
+            formatted_columns.append((column_name, type_text))
+            max_column_length = max(max_column_length, len(column_name))
+        
+        # Add columns with consistent spacing (minimum 2-3 spaces between name and type)
+        for column_name, type_text in formatted_columns:
+            # Calculate padding to ensure at least 3 spaces between column name and type
+            padding_needed = max_column_length - len(column_name) + 3
+            padding = "&nbsp;" * padding_needed
+            
+            # Use a monospace-like approach with consistent spacing
+            column_line = f'<div style="font-size: 12px; font-family: monospace; white-space: pre;"><span style="text-align: left;">{column_name}</span>{padding}<span style="text-align: right;">{type_text}</span></div>'
             content_lines.append(column_line)
         
         # Join with HTML line breaks for proper display
