@@ -135,13 +135,17 @@ class TestMermaidGenerator(unittest.TestCase):
         diagram = MermaidGenerator.generate_diagram(tables, sections)
         
         self.assertIn('flowchart TD', diagram)
-        self.assertIn('user[', diagram)
-        self.assertIn('<b>user</b>', diagram)
+        self.assertIn('user_header', diagram)  # Table header block
+        self.assertIn('<b>user</b>', diagram)  # Table name in header
+        self.assertIn('user_col_0_name', diagram)  # Column name blocks
+        self.assertIn('user_col_0_type', diagram)  # Column type blocks
         self.assertIn('font-size: 16px', diagram)  # Table name formatting
         self.assertIn('font-size: 12px', diagram)  # Column formatting
-        self.assertIn('text-align: left;">id', diagram)  # Left-aligned column name
-        self.assertIn('text-align: right;">SERIAL', diagram)  # Right-aligned data type
-        self.assertIn('text-align: right;">varchar(50)', diagram)
+        self.assertIn('>id<', diagram)  # Column name content
+        self.assertIn('>SERIAL<', diagram)  # Data type content
+        self.assertIn('>username<', diagram)  # Second column name
+        self.assertIn('>varchar(50)<', diagram)  # Second data type
+        self.assertIn('user_col_0_name --- user_col_0_type', diagram)  # Horizontal connections
     
     def test_generate_diagram_with_sections(self):
         """Test generating a diagram with sections."""
@@ -170,8 +174,9 @@ class TestMermaidGenerator(unittest.TestCase):
         # Check for formatted section labels with HTML styling
         self.assertIn('font-size: 20px; font-weight: bold;">User Management', diagram)
         self.assertIn('font-size: 20px; font-weight: bold;">Content Management', diagram)
-        self.assertIn('post --> user', diagram)
-        self.assertIn('text-align: right;">integer (FK)', diagram)  # Formatted FK column
+        # Check for foreign key relationship (column block to table header)
+        self.assertIn('post_col_1_name --> user_header', diagram)
+        self.assertIn('>integer (FK)<', diagram)  # FK column type content
 
 
 class TestIntegration(unittest.TestCase):
@@ -242,8 +247,8 @@ class TestIntegration(unittest.TestCase):
         self.assertIn('flowchart TD', diagram)
         self.assertIn('User Management', diagram)
         self.assertIn('Content Management', diagram)
-        self.assertIn('user_profile --> user', diagram)
-        self.assertIn('post --> user', diagram)
+        self.assertIn('user_profile_col_1_name --> user_header', diagram)
+        self.assertIn('post_col_1_name --> user_header', diagram)
         
         # Test markdown file generation
         output_file = os.path.join(self.output_dir, 'test_diagram.md')

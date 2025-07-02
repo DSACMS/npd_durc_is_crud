@@ -276,10 +276,10 @@ class SQLParser:
 
 
 class MermaidGenerator:
-    """Generator for Mermaid flowchart diagrams with styled sections."""
+    """Generator for Mermaid flowchart diagrams with individual column blocks."""
     
-    # Light pastel colors for tables
-    PASTEL_COLORS = [
+    # Light pastel colors for column name blocks
+    COLUMN_NAME_COLORS = [
         '#FFE5E5',  # Light pink
         '#E5F3FF',  # Light blue
         '#E5FFE5',  # Light green
@@ -290,7 +290,19 @@ class MermaidGenerator:
         '#FFE5F5',  # Light magenta
     ]
     
-    # Darker versions for section backgrounds
+    # Slightly darker colors for data type blocks
+    DATA_TYPE_COLORS = [
+        '#FFD0D0',  # Darker pink
+        '#D0E8FF',  # Darker blue
+        '#D0FFD0',  # Darker green
+        '#FFE8D0',  # Darker orange
+        '#E8D0FF',  # Darker purple
+        '#FFFFD0',  # Darker yellow
+        '#D0FFFF',  # Darker cyan
+        '#FFD0E8',  # Darker magenta
+    ]
+    
+    # Section background colors
     SECTION_COLORS = [
         '#FFB3B3',  # Darker pink
         '#B3D9FF',  # Darker blue
@@ -304,7 +316,7 @@ class MermaidGenerator:
     
     @staticmethod
     def generate_diagram(tables: Dict, sections: Dict) -> str:
-        """Generate Mermaid flowchart diagram with styled sections."""
+        """Generate Mermaid flowchart diagram with individual column blocks."""
         lines = ['flowchart TD']
         
         # Group tables by section
@@ -323,93 +335,125 @@ class MermaidGenerator:
                 unassigned_tables.append((table_name, table_info))
         
         color_index = 0
-        all_table_nodes = []
+        all_nodes = []
         
         # Generate sections with subgraphs
         for section_name, section_tables in section_groups.items():
             section_color = MermaidGenerator.SECTION_COLORS[color_index % len(MermaidGenerator.SECTION_COLORS)]
-            table_color = MermaidGenerator.PASTEL_COLORS[color_index % len(MermaidGenerator.PASTEL_COLORS)]
+            column_name_color = MermaidGenerator.COLUMN_NAME_COLORS[color_index % len(MermaidGenerator.COLUMN_NAME_COLORS)]
+            data_type_color = MermaidGenerator.DATA_TYPE_COLORS[color_index % len(MermaidGenerator.DATA_TYPE_COLORS)]
             
-            # Create subgraph for section with larger font size for section name
+            # Create subgraph for section
             section_id = f"section_{color_index}"
-            # Section labels should be two sizes larger than table names (which are 16px), so 20px
             section_label = f'<span style="font-size: 20px; font-weight: bold;">{section_name}</span>'
             lines.append(f'    subgraph {section_id}["{section_label}"]')
             
-            # Generate tables in this section
+            # Generate table structures in this section
             for table_name, table_info in section_tables:
-                table_content = MermaidGenerator._generate_table_content(table_info)
-                lines.append(f'        {table_name}["{table_content}"]')
-                all_table_nodes.append(table_name)
+                table_nodes, table_connections = MermaidGenerator._generate_table_blocks(
+                    table_name, table_info, column_name_color, data_type_color
+                )
+                lines.extend([f'        {node}' for node in table_nodes])
+                lines.extend([f'        {conn}' for conn in table_connections])
+                all_nodes.extend([node.split('[')[0] for node in table_nodes])
             
             lines.append('    end')
             
             # Add styling for the subgraph
             lines.append(f'    style {section_id} fill:{section_color},stroke:#333,stroke-width:2px,color:#000')
             
-            # Add styling for tables in this section
-            for table_name, table_info in section_tables:
-                lines.append(f'    style {table_name} fill:{table_color},stroke:#333,stroke-width:1px,color:#000')
-            
             color_index += 1
         
         # Generate unassigned tables
         if unassigned_tables:
-            table_color = MermaidGenerator.PASTEL_COLORS[color_index % len(MermaidGenerator.PASTEL_COLORS)]
+            column_name_color = MermaidGenerator.COLUMN_NAME_COLORS[color_index % len(MermaidGenerator.COLUMN_NAME_COLORS)]
+            data_type_color = MermaidGenerator.DATA_TYPE_COLORS[color_index % len(MermaidGenerator.DATA_TYPE_COLORS)]
             
             for table_name, table_info in unassigned_tables:
-                table_content = MermaidGenerator._generate_table_content(table_info)
-                lines.append(f'    {table_name}["{table_content}"]')
-                lines.append(f'    style {table_name} fill:{table_color},stroke:#333,stroke-width:1px,color:#000')
-                all_table_nodes.append(table_name)
+                table_nodes, table_connections = MermaidGenerator._generate_table_blocks(
+                    table_name, table_info, column_name_color, data_type_color
+                )
+                lines.extend([f'    {node}' for node in table_nodes])
+                lines.extend([f'    {conn}' for conn in table_connections])
+                all_nodes.extend([node.split('[')[0] for node in table_nodes])
         
-        # Generate relationships
+        # Generate foreign key relationships (column blocks to table header blocks)
         for table_name, table_info in tables.items():
-            for column in table_info['columns']:
+            for i, column in enumerate(table_info['columns']):
                 if column['is_foreign_key'] and column['foreign_table']:
                     # Check if the foreign table exists in our tables
                     if column['foreign_table'] in tables:
-                        lines.append(f'    {table_name} --> {column["foreign_table"]}')
+                        column_node_id = f"{table_name}_col_{i}_name"
+                        foreign_table_header_id = f"{column['foreign_table']}_header"
+                        lines.append(f'    {column_node_id} --> {foreign_table_header_id}')
         
         return '\n'.join(lines)
     
     @staticmethod
-    def _generate_table_content(table_info: Dict) -> str:
-        """Generate table content for display in flowchart node with proper formatting."""
-        table_name = table_info['table_name']
+    def _generate_table_blocks(table_name: str, table_info: Dict, column_name_color: str, data_type_color: str) -> Tuple[List[str], List[str]]:
+        """Generate individual blocks for table header, column names, and data types."""
+        nodes = []
+        connections = []
         columns = table_info['columns']
         
-        # Create table header with larger font size (two sizes larger than column text)
-        content_lines = [f'<span style="font-size: 16px;"><b>{table_name}</b></span>', "---"]
+        # Create table header block
+        header_id = f"{table_name}_header"
+        header_content = f'<span style="font-size: 16px;"><b>{table_name}</b></span>'
+        nodes.append(f'{header_id}["{header_content}"]')
         
-        # Calculate the maximum column name length to ensure proper spacing
-        max_column_length = 0
-        formatted_columns = []
+        # Create individual blocks for each column name and data type
+        prev_column_name_id = None
+        prev_data_type_id = None
         
-        for column in columns:
-            data_type = column['data_type']
+        for i, column in enumerate(columns):
             column_name = column['column_name']
+            data_type = column['data_type']
             
+            # Create column name block
+            column_name_id = f"{table_name}_col_{i}_name"
+            column_name_content = f'<span style="font-size: 12px;">{column_name}</span>'
+            nodes.append(f'{column_name_id}["{column_name_content}"]')
+            
+            # Create data type block
+            data_type_id = f"{table_name}_col_{i}_type"
             if column['is_foreign_key']:
                 type_text = f"{data_type} (FK)"
             else:
                 type_text = data_type
+            data_type_content = f'<span style="font-size: 12px;">{type_text}</span>'
+            nodes.append(f'{data_type_id}["{data_type_content}"]')
             
-            formatted_columns.append((column_name, type_text))
-            max_column_length = max(max_column_length, len(column_name))
-        
-        # Add columns with consistent spacing (minimum 2-3 spaces between name and type)
-        for column_name, type_text in formatted_columns:
-            # Calculate padding to ensure at least 3 spaces between column name and type
-            padding_needed = max_column_length - len(column_name) + 3
-            padding = "&nbsp;" * padding_needed
+            # Connect column name to data type (horizontal connection)
+            connections.append(f'{column_name_id} --- {data_type_id}')
             
-            # Use a monospace-like approach with consistent spacing
-            column_line = f'<div style="font-size: 12px; font-family: monospace; white-space: pre;"><span style="text-align: left;">{column_name}</span>{padding}<span style="text-align: right;">{type_text}</span></div>'
-            content_lines.append(column_line)
+            # Connect to header (first column only)
+            if i == 0:
+                connections.append(f'{header_id} --- {column_name_id}')
+            
+            # Connect to previous column (vertical connections)
+            if prev_column_name_id:
+                connections.append(f'{prev_column_name_id} --- {column_name_id}')
+            if prev_data_type_id:
+                connections.append(f'{prev_data_type_id} --- {data_type_id}')
+            
+            prev_column_name_id = column_name_id
+            prev_data_type_id = data_type_id
         
-        # Join with HTML line breaks for proper display
-        return "<br/>".join(content_lines)
+        # Add styling for all nodes
+        styled_nodes = []
+        for node in nodes:
+            node_id = node.split('[')[0]
+            if '_header' in node_id:
+                # Header gets a special color
+                styled_nodes.append(f'style {node_id} fill:#CCCCCC,stroke:#333,stroke-width:2px,color:#000')
+            elif '_name' in node_id:
+                # Column names get column name color
+                styled_nodes.append(f'style {node_id} fill:{column_name_color},stroke:#333,stroke-width:1px,color:#000')
+            elif '_type' in node_id:
+                # Data types get data type color
+                styled_nodes.append(f'style {node_id} fill:{data_type_color},stroke:#333,stroke-width:1px,color:#000')
+        
+        return nodes + styled_nodes, connections
 
 
 def main():

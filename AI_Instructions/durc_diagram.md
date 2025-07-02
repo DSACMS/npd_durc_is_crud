@@ -36,3 +36,4 @@ Formating Specifics
 
 * the table names should be two font sizes larger than the text for the column definitions. The section labels should be two sizes larger than that.
 * The column labels should be left aligned in the table boxes, and the column type should be right aligned.
+* the column list should be implemented as a two column stacks of blocks, arranged like a table. 
